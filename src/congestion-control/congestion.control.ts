@@ -149,6 +149,8 @@ export class CongestionControl extends EventEmitter {
             if (packet !== undefined) {
                 packet.getHeader().setPacketNumber(this.connection.getNextPacketNumber());
                 this.connection.getSocket().send(packet.toBuffer(this.connection), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
+                this.connection.getSocket().send(packet.toBuffer(this.connection), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
+                this.emit(CongestionControlEvents.PACKET_SENT, packet);
                 this.emit(CongestionControlEvents.PACKET_SENT, packet);
             }
         }
