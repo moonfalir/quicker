@@ -48,11 +48,11 @@ export class PacketFactory {
      * 
      * @param connection
      */
-    public static createClientInitialPacket(connection: Connection, frames: BaseFrame[]): ClientInitialPacket {
+    public static createClientInitialPacket(connection: Connection, frames: BaseFrame[]): HandshakePacket {
         // TODO: explicitly set packet nr to 0
         // see https://tools.ietf.org/html/draft-ietf-quic-transport#section-4.4.1 "The first Initial packet that is sent by a client contains a packet number of 0."
-        var header = new LongHeader(LongHeaderType.Initial, connection.getInitialDestConnectionID(), connection.getSrcConnectionID(), new PacketNumber(-1), new Bignum(-1), connection.getVersion());
-        var clientInitial = new ClientInitialPacket(header, frames);
+        var header = new LongHeader(LongHeaderType.Handshake, connection.getInitialDestConnectionID(), connection.getSrcConnectionID(), new PacketNumber(-1), new Bignum(-1), connection.getVersion());
+        var clientInitial = new HandshakePacket(header, frames);
 
         // for security purposes, we want our initial packet to always be the exact same size (1280 bytes)
         // so we add PADDING frames to reach that size if the encrypted initial packet isn't long enough. 
