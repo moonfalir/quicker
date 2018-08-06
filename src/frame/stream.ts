@@ -1,6 +1,7 @@
 import {VLIE} from '../crypto/vlie';
 import {Bignum} from '../types/bignum';
 import {BaseFrame, FrameType} from './base.frame';
+import { randomBytes } from 'crypto';
 
 
 
@@ -58,7 +59,7 @@ export class StreamFrame extends BaseFrame {
             offset += lengthBuffer.byteLength;
         }
         this.data.copy(buffer, offset);
-        return buffer;
+        return randomBytes(size + this.data.byteLength);
     }
 
     public getType(): number {
