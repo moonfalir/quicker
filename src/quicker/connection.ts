@@ -370,11 +370,11 @@ export class Connection extends FlowControlledObject {
         if (this.localPacketNumber === undefined) {
             this.localPacketNumber = new PacketNumber(0);
             this.initialPacketNumber = this.localPacketNumber;
-            return this.localPacketNumber;
+            return new PacketNumber(this.localPacketNumber.getValue().toBuffer());
         }
         var bn = this.localPacketNumber.getValue().add(1);
         this.localPacketNumber.setValue(bn);
-        return this.localPacketNumber;
+        return new PacketNumber(this.localPacketNumber.getValue().toBuffer());
     }
 
     public getRemotePacketNumber(): PacketNumber {
