@@ -103,6 +103,9 @@ export class StreamManager extends EventEmitter {
             next = next.add(4);
             stream = this._getStream(next);
         }
+        while (next.greaterThan(4)) {
+            next = next.subtract(4);
+        }
         return this.getStream(next);
     }
 }
