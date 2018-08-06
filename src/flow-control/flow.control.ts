@@ -2,7 +2,7 @@ import { ConnectionErrorCodes } from '../utilities/errors/quic.codes';
 import { QuicError } from '../utilities/errors/connection.error';
 import { Bignum } from '../types/bignum';
 import { Connection, ConnectionState } from '../quicker/connection';
-import { Stream } from '../quicker/stream';
+import { Stream, StreamType } from '../quicker/stream';
 import { BasePacket, PacketType } from '../packet/base.packet';
 import { StreamFrame } from '../frame/stream';
 import { BaseEncryptedPacket } from '../packet/base.encrypted.packet';
@@ -97,6 +97,7 @@ export class FlowControl {
         });
 
         if (this.connection.getQuicTLS().getHandshakeState() >= HandshakeState.CLIENT_COMPLETED) {
+            frames.flowControlFrames.push(FrameFactory.createStopSendingFrame(this.connection.getStreamManager().getNextStream(StreamType.ClientUni).getStreamID(), 1));
             frames.flowControlFrames.forEach((frame: BaseFrame) => {
                 var frameSize = frame.toBuffer().byteLength
                 if (size.add(frameSize).greaterThan(maxPayloadSize) && !size.equals(0)) {
