@@ -150,6 +150,9 @@ export class CongestionControl extends EventEmitter {
         // https://tools.ietf.org/html/draft-ietf-quic-transport-12#section-4.6
         while (this.bytesInFlight.lessThan(this.congestionWindow) && this.packetsQueue.length > 0) {
             var packet: BasePacket | undefined = this.packetsQueue.shift();
+            if (this.connection.getQuicTLS().getHandshakeState() === HandshakeState.CLIENT_COMPLETED) {
+                this.connection.getSocket().send(this.createCoalescedLargeDatagram(), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
+            }
             if (packet !== undefined) {
                 packet.getHeader().setPacketNumber(this.connection.getNextPacketNumber());
                 this.connection.getSocket().send(packet.toBuffer(this.connection), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
