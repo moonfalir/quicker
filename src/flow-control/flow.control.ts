@@ -291,9 +291,9 @@ export class FlowControl {
         /**
          * If stream is receive only, reset stream data
          */
-        if (stream.isReceiveOnly()) {
+        /*if (stream.isReceiveOnly()) {
             stream.resetData();
-        }
+        }*/
         var isHandshake = (this.connection.getQuicTLS().getHandshakeState() !== HandshakeState.COMPLETED && stream.getStreamID().equals(0));
 
         while (stream.getOutgoingDataSize() > 0 && (isHandshake || (!stream.isRemoteLimitExceeded() && !this.connection.isRemoteLimitExceeded()))) {
