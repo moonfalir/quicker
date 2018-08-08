@@ -6,6 +6,10 @@ import { Connection, ConnectionEvent } from "../quicker/connection";
 import { LossDetection, LossDetectionEvents } from "../loss-detection/loss.detection";
 import { Socket } from "dgram";
 import { PacketLogging } from "../utilities/logging/packet.logging";
+import { FrameFactory } from "../utilities/factories/frame.factory";
+import { PacketFactory } from "../utilities/factories/packet.factory";
+import { PacketNumber } from "../packet/header/header.properties";
+import { HandshakeState } from "../crypto/qtls";
 
 
 export class CongestionControl extends EventEmitter {
@@ -152,6 +156,38 @@ export class CongestionControl extends EventEmitter {
                 this.emit(CongestionControlEvents.PACKET_SENT, packet);
             }
         }
+    }
+
+
+    private createCoalescedLargeDatagram() {
+        var max_udp_size = 1280;
+        var current_size = 0;
+        var packets: BasePacket[] = [];
+        var frame = FrameFactory.createPaddingFrame(1);
+        var hsPacket = PacketFactory.createHandshakePacket(this.connection, [frame]);
+        var next_size = hsPacket.getSize();
+        while (next_size < max_udp_size) {
+            hsPacket.getHeader().setPacketNumber(new PacketNumber(this.connection.getNextPacketNumber().toBuffer()));
+            current_size += hsPacket.toBuffer(this.connection).byteLength;
+            next_size = current_size;
+            packets.push(hsPacket);
+            this.emit(CongestionControlEvents.PACKET_SENT, hsPacket);
+            var hsPacket = PacketFactory.createHandshakePacket(this.connection, [frame]);
+            next_size += hsPacket.getSize();
+        }
+
+        return this.coalescedPacketsToBuffer(current_size, packets);
+    }
+
+    private coalescedPacketsToBuffer(size: number, packets: BasePacket[]) {
+        var buf = Buffer.alloc(size);
+        var offset = 0;
+        packets.forEach((packet: BasePacket) => {
+            var packetBuffer = packet.toBuffer(this.connection);
+            packetBuffer.copy(buf, offset);
+            offset += packetBuffer.byteLength;
+        });
+        return buf;
     }
 }
 
