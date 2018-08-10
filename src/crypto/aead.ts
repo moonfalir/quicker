@@ -75,9 +75,8 @@ export class AEAD {
      */
     public clearTextEncrypt(connectionID: ConnectionID, header: BaseHeader, payload: Buffer, encryptingEndpoint: EndpointType): Buffer {
         var longHeader = <LongHeader>header;
-        if (this.usedVersion === undefined || this.usedVersion !== longHeader.getVersion()) {
-            this.generateClearTextSecrets(connectionID, this.qtls, longHeader.getVersion());
-        }
+        // Generate secrets everytime because the test changes the connectionID temporary
+        this.generateClearTextSecrets(connectionID, this.qtls, longHeader.getVersion());
         if (encryptingEndpoint === EndpointType.Client) {
             var key = this.clearTextClientKey;
             var iv = this.clearTextClientIv;
@@ -97,9 +96,8 @@ export class AEAD {
      */
     public clearTextDecrypt(connectionID: ConnectionID, header: BaseHeader, encryptedPayload: Buffer, encryptingEndpoint: EndpointType): Buffer {
         var longHeader = <LongHeader>header;
-        if (this.usedVersion === undefined || this.usedVersion !== longHeader.getVersion()) {
-            this.generateClearTextSecrets(connectionID, this.qtls, longHeader.getVersion());
-        }
+        // Generate secrets everytime because the test changes the connectionID temporary
+        this.generateClearTextSecrets(connectionID, this.qtls, longHeader.getVersion());
         if (encryptingEndpoint === EndpointType.Client) {
             var key = this.clearTextClientKey;
             var iv = this.clearTextClientIv;

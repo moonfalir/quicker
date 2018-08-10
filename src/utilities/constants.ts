@@ -83,7 +83,7 @@ export class Constants {
      * Method for testing purposes only
      */
     public static getActiveVersion(): string {
-        return 'bababa0c';
+        return 'ff00000c';
     }
 
     public static getVersionSalt(version: string): string {

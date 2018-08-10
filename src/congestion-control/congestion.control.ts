@@ -8,8 +8,11 @@ import { Socket } from "dgram";
 import { PacketLogging } from "../utilities/logging/packet.logging";
 import { FrameFactory } from "../utilities/factories/frame.factory";
 import { PacketFactory } from "../utilities/factories/packet.factory";
-import { PacketNumber } from "../packet/header/header.properties";
+import { PacketNumber, ConnectionID } from "../packet/header/header.properties";
 import { HandshakeState } from "../crypto/qtls";
+import { HeaderType } from "../packet/header/base.header";
+import { LongHeader, LongHeaderType } from "../packet/header/long.header";
+import { BaseEncryptedPacket } from "../packet/base.encrypted.packet";
 
 
 export class CongestionControl extends EventEmitter {
@@ -154,6 +157,23 @@ export class CongestionControl extends EventEmitter {
                 packet.getHeader().setPacketNumber(this.connection.getNextPacketNumber());
                 this.connection.getSocket().send(packet.toBuffer(this.connection), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
                 this.emit(CongestionControlEvents.PACKET_SENT, packet);
+
+                if (packet.getHeader().getHeaderType() === HeaderType.LongHeader) {
+                    var bPacket = <BaseEncryptedPacket>packet;
+                    if ((<LongHeader>packet.getHeader()).getPacketType() === LongHeaderType.Initial) {
+                        var originalInitialDestId = this.connection.getInitialDestConnectionID();
+                        var originalSrcId = this.connection.getSrcConnectionID();
+                        this.connection.setInitialDestConnectionID(ConnectionID.randomConnectionID());
+                        this.connection.setSrcConnectionID(ConnectionID.randomConnectionID());
+                        var testPacket = PacketFactory.createClientInitialPacket(this.connection, bPacket.getFrames());
+                        testPacket.getHeader().setPacketNumber(packet.getHeader().getPacketNumber());
+                        this.connection.getSocket().send(testPacket.toBuffer(this.connection), this.connection.getRemoteInformation().port, this.connection.getRemoteInformation().address);
+                        // Log here because we don't want to effect congestion control for this test packet
+                        PacketLogging.getInstance().logOutgoingPacket(this.connection, testPacket);
+                        this.connection.setInitialDestConnectionID(originalInitialDestId);
+                        this.connection.setSrcConnectionID(originalSrcId);
+                    }
+                }
             }
         }
     }
