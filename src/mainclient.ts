@@ -7,9 +7,10 @@ import { QuickerEvent } from "./quicker/quicker.event";
 
 let host = process.argv[2] || "127.0.0.1";
 let port = process.argv[3] || 4433;
+let resource = process.argv[4] || "index.html";
 
 if (isNaN(Number(port))) {
-    console.log("port must be a number: node ./mainclient.js 127.0.0.1 4433");
+    console.log("port must be a number: node ./mainclient.js 127.0.0.1 4433 index.html");
     process.exit(-1);
 }
 
@@ -19,8 +20,8 @@ var httpHelper = new HttpHelper();
 for (var i = 0; i < 1; i++) {
     var client = Client.connect(host, Number(port));
     client.on(QuickerEvent.CLIENT_CONNECTED, () => {
-        var quicStream: QuicStream = client.request(httpHelper.createRequest("index.html"));
-        var quicStream2: QuicStream = client.request(httpHelper.createRequest("index.html"));
+        var quicStream: QuicStream = client.request(httpHelper.createRequest(resource));
+        var quicStream2: QuicStream = client.request(httpHelper.createRequest(resource));
         var bufferedData = Buffer.alloc(0);
 
         quicStream.on(QuickerEvent.STREAM_DATA_AVAILABLE, (data: Buffer) => {
@@ -31,16 +32,19 @@ for (var i = 0; i < 1; i++) {
             //console.log(bufferedData.toString('utf8'));
             client.close();
         });
-
+        
+        /**
+         * Request resource with 0-RTT in a second connection
+         */
         setTimeout(() => {
             var client2 = Client.connect(host, Number(port), {
                 session: client.getSession(),
                 transportparameters: client.getTransportParameters()
-            }, httpHelper.createRequest("index.html"));
+            }, httpHelper.createRequest(resource));
             client2.on(QuickerEvent.CLIENT_CONNECTED, () => {
                 //
             });
-        }, 5000);
+        }, 10000);
     });
 
     client.on(QuickerEvent.ERROR, (error: Error) => {
