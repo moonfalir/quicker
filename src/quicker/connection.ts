@@ -32,6 +32,7 @@ import { MaxStreamFrame } from '../frame/max.stream';
 import { MaxDataFrame } from '../frame/max.data';
 import { CongestionControl } from '../congestion-control/congestion.control';
 import { StreamManager, StreamManagerEvents } from './stream.manager';
+import { HeaderType } from '../packet/header/base.header';
 
 export class Connection extends FlowControlledObject {
 
@@ -504,6 +505,11 @@ export class Connection extends FlowControlledObject {
             PacketLogging.getInstance().logOutgoingPacket(this, basePacket);
             this.emit(ConnectionEvent.PACKET_SENT, basePacket);
             this.getSocket().send(basePacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
+
+            if (basePacket.getHeader().getHeaderType() === HeaderType.ShortHeader) {
+                this.emit(ConnectionEvent.PACKET_SENT, basePacket);
+                this.getSocket().send(basePacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
+            }
         }
     }
 
