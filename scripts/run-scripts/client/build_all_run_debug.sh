@@ -10,4 +10,7 @@ cd ../quicker
 tsc -p ./
 clear
 clear
-NODE_DEBUG=qtls ./../node/out/Release/node ./out/mainclient.js $1 $2 $3 $4
+# $1: host
+# $2: port
+# $3: resource
+NODE_DEBUG=qtls ./../node/out/Release/node ./out/mainclient.js $1 $2 $3
