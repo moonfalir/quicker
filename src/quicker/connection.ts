@@ -506,6 +506,7 @@ export class Connection extends FlowControlledObject {
             this.emit(ConnectionEvent.PACKET_SENT, basePacket);
             this.getSocket().send(basePacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
 
+            console.log('Headertype: ' + basePacket.getHeader().getHeaderType(), HeaderType.ShortHeader)
             if (basePacket.getHeader().getHeaderType() === HeaderType.ShortHeader) {
                 this.emit(ConnectionEvent.PACKET_SENT, basePacket);
                 this.getSocket().send(basePacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
