@@ -511,8 +511,9 @@ export class Connection extends FlowControlledObject {
             if (basePacket.getHeader().getHeaderType() === HeaderType.LongHeader) {
                 var bPacket = <BaseEncryptedPacket>basePacket;
                 if ((<LongHeader>basePacket.getHeader()).getPacketType() === LongHeaderType.Initial) {
-                    var testPacket = PacketFactory.createClientInitialPacket(this, bPacket.getFrames());
+                    var testPacket = basePacket
                     testPacket.getHeader().setPacketNumber(this.getNextPacketNumber());
+                    this.emit(ConnectionEvent.PACKET_SENT, testPacket);
                     this.getSocket().send(testPacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
                     // Log here because we don't want to effect congestion control for this test packet
                     PacketLogging.getInstance().logOutgoingPacket(this, testPacket);
