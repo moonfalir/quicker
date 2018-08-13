@@ -511,17 +511,11 @@ export class Connection extends FlowControlledObject {
             if (basePacket.getHeader().getHeaderType() === HeaderType.LongHeader) {
                 var bPacket = <BaseEncryptedPacket>basePacket;
                 if ((<LongHeader>basePacket.getHeader()).getPacketType() === LongHeaderType.Initial) {
-                    var originalInitialDestId = this.getInitialDestConnectionID();
-                    var originalSrcId = this.getSrcConnectionID();
-                    this.setInitialDestConnectionID(ConnectionID.randomConnectionID());
-                    this.setSrcConnectionID(ConnectionID.randomConnectionID());
                     var testPacket = PacketFactory.createClientInitialPacket(this, bPacket.getFrames());
-                    testPacket.getHeader().setPacketNumber(basePacket.getHeader().getPacketNumber());
+                    testPacket.getHeader().setPacketNumber(this.getNextPacketNumber());
                     this.getSocket().send(testPacket.toBuffer(this), this.getRemoteInfo().port, this.getRemoteInfo().address);
                     // Log here because we don't want to effect congestion control for this test packet
                     PacketLogging.getInstance().logOutgoingPacket(this, testPacket);
-                    this.setInitialDestConnectionID(originalInitialDestId);
-                    this.setSrcConnectionID(originalSrcId);
                 }
             }
         }
