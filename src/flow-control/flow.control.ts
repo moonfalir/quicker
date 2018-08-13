@@ -25,10 +25,12 @@ export class FlowControl {
 
     private connection: Connection;
     private bufferedFrames: BaseFrame[];
+    private sendFlowControl: boolean
 
     public constructor(connection: Connection) {
         this.connection = connection;
         this.bufferedFrames = [];
+        this.sendFlowControl = false
     }
 
     public queueFrame(baseFrame: BaseFrame): void {
@@ -174,8 +176,9 @@ export class FlowControl {
                 handshakeFrames = handshakeFrames.concat(flowControlFrameObject.handshakeFrames);
             });
         }
-
-        flowControlFrames = flowControlFrames.concat(this.getLocalFlowControlFrames());
+        
+        if (streamFrames.length > 0)
+            flowControlFrames = flowControlFrames.concat(this.getLocalFlowControlFrames());
 
         return {
             streamFrames: streamFrames,
@@ -283,15 +286,13 @@ export class FlowControl {
             return [];
         }
         var frames = new Array<BaseFrame>();
-        if (this.connection.isLocalLimitAlmostExceeded() || this.connection.getIsRemoteBlocked()) {
-            var newMaxData = this.connection.getLocalMaxData().multiply(2);
-            frames.push(FrameFactory.createMaxDataFrame(newMaxData));
-            this.connection.setLocalMaxData(newMaxData);
-            this.connection.setIsRemoteBlocked(false);
-        }
+        var newMaxData = this.connection.getLocalMaxData().multiply(2);
+        frames.push(FrameFactory.createMaxDataFrame(newMaxData));
+        this.connection.setLocalMaxData(newMaxData);
+        this.connection.setIsRemoteBlocked(false);
 
         this.connection.getStreamManager().getStreams().forEach((stream: Stream) => {
-            if (!stream.getStreamID().equals(0) && stream.isLocalLimitAlmostExceeded() || stream.getIsRemoteBlocked()) {
+            if (!stream.getStreamID().equals(0)) {
                 var newMaxStreamData = stream.getLocalMaxData().multiply(2);
                 frames.push(FrameFactory.createMaxStreamDataFrame(stream.getStreamID(), newMaxStreamData));
                 stream.setLocalMaxData(newMaxStreamData);
