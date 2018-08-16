@@ -36,7 +36,7 @@ for (var i = 0; i < 1; i++) {
             var client2 = Client.connect(host, Number(port), {
                 session: client.getSession(),
                 transportparameters: client.getTransportParameters(true)
-            }, httpHelper.createRequest("index.htmlf"));
+            }, httpHelper.createRequest("index.html"));
             client2.on(QuickerEvent.CLIENT_CONNECTED, () => {
                 //
             });
