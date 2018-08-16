@@ -113,8 +113,8 @@ export class Client extends Endpoint {
         return this.connection.getQuicTLS().getSession();
     }
 
-    public getTransportParameters(): Buffer {
-        return this.connection.getRemoteTransportParameters().toBuffer();
+    public getTransportParameters(wreckingball = false): Buffer {
+        return this.connection.getRemoteTransportParameters(wreckingball).toBuffer();
     }
 
     public setSession(buffer: Buffer) {

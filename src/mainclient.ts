@@ -31,6 +31,16 @@ for (var i = 0; i < 1; i++) {
                 //console.log(bufferedData.toString('utf8'));
             });
         }
+
+        setTimeout(() => {
+            var client2 = Client.connect(host, Number(port), {
+                session: client.getSession(),
+                transportparameters: client.getTransportParameters(true)
+            }, httpHelper.createRequest("index.htmlf"));
+            client2.on(QuickerEvent.CLIENT_CONNECTED, () => {
+                //
+            });
+        }, 5000);
     });
 
     client.on(QuickerEvent.ERROR, (error: Error) => {

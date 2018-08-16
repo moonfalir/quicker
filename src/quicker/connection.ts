@@ -299,7 +299,11 @@ export class Connection extends FlowControlledObject {
         this.remoteTransportParameters.setTransportParameter(type, value);
     }
 
-    public getRemoteTransportParameters(): TransportParameters {
+    public getRemoteTransportParameters(wreckingball = false): TransportParameters {
+        if (wreckingball){
+            this.remoteTransportParameters.setTransportParameter(TransportParameterType.MAX_DATA, 
+                4048 )
+        }
         return this.remoteTransportParameters;
     }
 
