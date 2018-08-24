@@ -40,7 +40,7 @@ for (var i = 0; i < 1; i++) {
             client2.on(QuickerEvent.CLIENT_CONNECTED, () => {
                 //
             });
-        }, 5000);
+        }, 3000);
     });
 
     client.on(QuickerEvent.ERROR, (error: Error) => {

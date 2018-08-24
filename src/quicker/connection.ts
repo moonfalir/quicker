@@ -301,8 +301,7 @@ export class Connection extends FlowControlledObject {
 
     public getRemoteTransportParameters(wreckingball = false): TransportParameters {
         if (wreckingball){
-            this.remoteTransportParameters.setTransportParameter(TransportParameterType.MAX_DATA, 
-                4048 )
+            this.remoteTransportParameters.setTransportParameter(TransportParameterType.INITIAL_MAX_STREAM_ID_BIDI, 0)
         }
         return this.remoteTransportParameters;
     }
